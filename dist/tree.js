@@ -41,78 +41,205 @@ const ops = __importStar(require("./ops"));
 exports.ops = ops;
 const common_1 = require("./common");
 function build(root) {
+    const pathCache = new Map();
+    const MAX_CACHE_SIZE = 64;
+    const invalidateCache = () => {
+        pathCache.clear();
+    };
     const lastNode = () => ops.findInMainline(root, (node) => !node.children.length);
-    const nodeAtPathOrNull = (path) => nodeAtPathOrNullFrom(root, path);
-    function nodeAtPathOrNullFrom(node, path) {
+    function nodeAtPathDirect(rootNode, path) {
         if (path === '')
-            return node;
-        const child = ops.childById(node, treePath.head(path));
-        return child ? nodeAtPathOrNullFrom(child, treePath.tail(path)) : undefined;
+            return rootNode;
+        const len = path.length;
+        if (len % 2 !== 0)
+            return undefined;
+        let curr = rootNode;
+        for (let i = 0; i < len; i += 2) {
+            if (!curr)
+                return undefined;
+            const c0 = path.charCodeAt(i);
+            const c1 = path.charCodeAt(i + 1);
+            const children = curr.children;
+            const cLen = children.length;
+            let match = undefined;
+            for (let j = 0; j < cLen; j++) {
+                const child = children[j];
+                if (child.id.charCodeAt(0) === c0 && child.id.charCodeAt(1) === c1) {
+                    match = child;
+                    break;
+                }
+            }
+            curr = match;
+        }
+        return curr;
     }
-    function longestValidPathFrom(node, path) {
-        const id = treePath.head(path);
-        const child = ops.childById(node, id);
-        return child ? id + longestValidPathFrom(child, treePath.tail(path)) : '';
+    const nodeAtPathOrNull = (path) => {
+        if (path === '')
+            return root;
+        const cached = pathCache.get(path);
+        if (cached)
+            return cached;
+        const node = nodeAtPathDirect(root, path);
+        if (node) {
+            if (pathCache.size >= MAX_CACHE_SIZE) {
+                pathCache.clear();
+            }
+            pathCache.set(path, node);
+        }
+        return node;
+    };
+    function longestValidPathFrom(rootNode, path) {
+        if (!path)
+            return '';
+        const len = path.length;
+        let curr = rootNode;
+        let validLen = 0;
+        for (let i = 0; i < len; i += 2) {
+            if (!curr)
+                break;
+            const c0 = path.charCodeAt(i);
+            const c1 = path.charCodeAt(i + 1);
+            const children = curr.children;
+            const cLen = children.length;
+            let match = undefined;
+            for (let j = 0; j < cLen; j++) {
+                const child = children[j];
+                if (child.id.charCodeAt(0) === c0 && child.id.charCodeAt(1) === c1) {
+                    match = child;
+                    break;
+                }
+            }
+            if (match) {
+                validLen += 2;
+                curr = match;
+            }
+            else {
+                break;
+            }
+        }
+        return validLen > 0 ? path.slice(0, validLen) : '';
     }
     function getCurrentNodesAfterPly(nodeList, mainline, ply) {
+        var _a;
         const nodes = [];
-        for (let i = 0; i < nodeList.length; i++) {
+        const len = nodeList.length;
+        for (let i = 0; i < len; i++) {
             const node = nodeList[i];
-            if (node.ply <= ply && mainline[i].id !== node.id)
+            if (node.ply <= ply && ((_a = mainline[i]) === null || _a === void 0 ? void 0 : _a.id) !== node.id)
                 break;
             if (node.ply > ply)
                 nodes.push(node);
         }
         return nodes;
     }
-    const pathIsMainline = (path) => pathIsMainlineFrom(root, path);
-    function pathIsMainlineFrom(node, path) {
+    function pathIsMainline(path) {
         if (path === '')
             return true;
-        const child = node.children[0];
-        return (child === null || child === void 0 ? void 0 : child.id) === treePath.head(path) && pathIsMainlineFrom(child, treePath.tail(path));
+        const len = path.length;
+        let curr = root;
+        for (let i = 0; i < len; i += 2) {
+            if (!curr)
+                return false;
+            const firstChild = curr.children[0];
+            if (!firstChild)
+                return false;
+            if (firstChild.id.charCodeAt(0) !== path.charCodeAt(i) ||
+                firstChild.id.charCodeAt(1) !== path.charCodeAt(i + 1)) {
+                return false;
+            }
+            curr = firstChild;
+        }
+        return true;
     }
     const pathExists = (path) => !!nodeAtPathOrNull(path);
-    const pathIsForcedVariation = (path) => !!getNodeList(path).find(n => n.forceVariation);
-    function lastMainlineNodeFrom(node, path) {
+    const pathIsForcedVariation = (path) => {
+        const list = getNodeList(path);
+        const len = list.length;
+        for (let i = 0; i < len; i++) {
+            if (list[i].forceVariation)
+                return true;
+        }
+        return false;
+    };
+    function lastMainlineNodeFrom(rootNode, path) {
         if (path === '')
-            return node;
-        const pathId = treePath.head(path);
-        const child = node.children[0];
-        if (!child || child.id !== pathId)
-            return node;
-        return lastMainlineNodeFrom(child, treePath.tail(path));
+            return rootNode;
+        const len = path.length;
+        let curr = rootNode;
+        for (let i = 0; i < len; i += 2) {
+            const firstChild = curr.children[0];
+            if (!firstChild)
+                return curr;
+            if (firstChild.id.charCodeAt(0) !== path.charCodeAt(i) ||
+                firstChild.id.charCodeAt(1) !== path.charCodeAt(i + 1)) {
+                return curr;
+            }
+            curr = firstChild;
+        }
+        return curr;
     }
-    const getNodeList = (path) => ops.collect(root, function (node) {
-        const id = treePath.head(path);
-        if (id === '')
-            return;
-        path = treePath.tail(path);
-        return ops.childById(node, id);
-    });
+    const getNodeList = (path) => {
+        const nodes = [root];
+        if (path === '')
+            return nodes;
+        const len = path.length;
+        let curr = root;
+        for (let i = 0; i < len; i += 2) {
+            if (!curr)
+                break;
+            const c0 = path.charCodeAt(i);
+            const c1 = path.charCodeAt(i + 1);
+            const children = curr.children;
+            const cLen = children.length;
+            let match = undefined;
+            for (let j = 0; j < cLen; j++) {
+                const child = children[j];
+                if (child.id.charCodeAt(0) === c0 && child.id.charCodeAt(1) === c1) {
+                    match = child;
+                    break;
+                }
+            }
+            if (match) {
+                nodes.push(match);
+                curr = match;
+            }
+            else {
+                break;
+            }
+        }
+        return nodes;
+    };
     const extendPath = (path, isMainline) => {
         let currNode = nodeAtPathOrNull(path);
-        while ((currNode = currNode === null || currNode === void 0 ? void 0 : currNode.children[0]) && !(isMainline && currNode.forceVariation))
-            path += currNode.id;
-        return path;
+        let extended = path;
+        while ((currNode = currNode === null || currNode === void 0 ? void 0 : currNode.children[0]) && !(isMainline && currNode.forceVariation)) {
+            extended += currNode.id;
+        }
+        return extended;
     };
     function updateAt(path, update) {
         const node = nodeAtPathOrNull(path);
-        if (node)
+        if (node) {
             update(node);
+            invalidateCache();
+        }
         return node;
     }
     // returns new path
     function addNode(node, path) {
-        const newPath = path + node.id, existing = nodeAtPathOrNull(newPath);
+        const newPath = path + node.id;
+        const existing = nodeAtPathOrNull(newPath);
         if (existing) {
-            ['dests', 'drops', 'clock'].forEach(key => {
-                if ((0, common_1.defined)(node[key]) && !(0, common_1.defined)(existing[key]))
+            const keys = ['dests', 'drops', 'clock'];
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                if ((0, common_1.defined)(node[key]) && !(0, common_1.defined)(existing[key])) {
                     existing[key] = node[key];
-            });
+                }
+            }
             return newPath;
         }
-        return updateAt(path, function (parent) {
+        const res = updateAt(path, function (parent) {
             var _a;
             if ((_a = parent.children[0]) === null || _a === void 0 ? void 0 : _a.forceVariation) {
                 parent.children[0].forceVariation = false;
@@ -120,9 +247,12 @@ function build(root) {
             }
             else
                 parent.children.push(node);
-        })
-            ? newPath
-            : undefined;
+        });
+        if (res) {
+            invalidateCache();
+            return newPath;
+        }
+        return undefined;
     }
     function addNodes(nodes, path) {
         const node = nodes[0];
@@ -133,26 +263,34 @@ function build(root) {
     }
     const deleteNodeAt = (path) => {
         const parent = parentNode(path);
-        if (parent)
+        if (parent) {
             ops.removeChild(parent, treePath.last(path));
+            invalidateCache();
+        }
     };
     function promoteAt(path, toMainline) {
+        var _a;
         const nodes = getNodeList(path);
+        let changed = false;
         for (let i = nodes.length - 2; i >= 0; i--) {
             const node = nodes[i + 1];
             const parent = nodes[i];
-            if (parent.children[0].id !== node.id) {
+            if (((_a = parent.children[0]) === null || _a === void 0 ? void 0 : _a.id) !== node.id) {
                 ops.removeChild(parent, node.id);
                 parent.children.unshift(node);
+                changed = true;
                 if (!toMainline)
                     break;
             }
             else if (node.forceVariation) {
                 node.forceVariation = false;
+                changed = true;
                 if (!toMainline)
                     break;
             }
         }
+        if (changed)
+            invalidateCache();
     }
     const setCommentAt = (comment, path) => !comment.text
         ? deleteCommentAt(comment.id, path)
@@ -227,7 +365,10 @@ function build(root) {
             node.forceVariation = force;
         }),
         getCurrentNodesAfterPly,
-        merge: (tree) => ops.merge(root, tree),
+        merge: (tree) => {
+            ops.merge(root, tree);
+            invalidateCache();
+        },
         removeCeval: () => ops.updateAll(root, function (n) {
         }),
         parentNode,

@@ -1,12 +1,12 @@
 export declare function withMainlineChild<T>(node: Tree.Node, f: (node: Tree.Node) => T): T | undefined;
 export declare function findInMainline(fromNode: Tree.Node, predicate: (node: Tree.Node) => boolean): Tree.Node | undefined;
 export declare function collect(from: Tree.Node, pickChild: (node: Tree.Node) => Tree.Node | undefined): Tree.Node[];
-export declare const childById: (node: Tree.Node, id: string) => Tree.Node | undefined;
+export declare function childById(node: Tree.Node, id: string): Tree.Node | undefined;
 export declare const last: (nodeList: Tree.Node[]) => Tree.Node | undefined;
-export declare const nodeAtPly: (nodeList: Tree.Node[], ply: number) => Tree.Node | undefined;
+export declare function nodeAtPly(nodeList: Tree.Node[], ply: number): Tree.Node | undefined;
 export declare function takePathWhile(nodeList: Tree.Node[], predicate: (node: Tree.Node) => boolean): Tree.Path;
 export declare function removeChild(parent: Tree.Node, id: string): void;
-export declare function countChildrenAndComments(node: Tree.Node): {
+export declare function countChildrenAndComments(root: Tree.Node): {
     nodes: number;
     comments: number;
 };

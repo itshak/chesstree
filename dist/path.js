@@ -14,12 +14,32 @@ const last = (path) => path.slice(-2);
 exports.last = last;
 const contains = (p1, p2) => p1.startsWith(p2);
 exports.contains = contains;
-const fromNodeList = (nodes) => nodes.map(n => n.id).join('');
+const fromNodeList = (nodes) => {
+    const len = nodes.length;
+    if (len === 0)
+        return '';
+    if (len === 1)
+        return nodes[0].id;
+    const parts = new Array(len);
+    for (let i = 0; i < len; i++) {
+        parts[i] = nodes[i].id;
+    }
+    return parts.join('');
+};
 exports.fromNodeList = fromNodeList;
-const isChildOf = (child, parent) => !!child && child.slice(0, -2) === parent;
+const isChildOf = (child, parent) => !!child && child.length === parent.length + 2 && child.startsWith(parent);
 exports.isChildOf = isChildOf;
 const intersection = (p1, p2) => {
-    const head1 = (0, exports.head)(p1), head2 = (0, exports.head)(p2);
-    return head1 !== '' && head1 === head2 ? head1 + (0, exports.intersection)((0, exports.tail)(p1), (0, exports.tail)(p2)) : '';
+    const minLen = Math.min(p1.length, p2.length);
+    let commonLen = 0;
+    for (let i = 0; i < minLen; i += 2) {
+        if (p1.charCodeAt(i) === p2.charCodeAt(i) && p1.charCodeAt(i + 1) === p2.charCodeAt(i + 1)) {
+            commonLen += 2;
+        }
+        else {
+            break;
+        }
+    }
+    return commonLen > 0 ? p1.slice(0, commonLen) : '';
 };
 exports.intersection = intersection;

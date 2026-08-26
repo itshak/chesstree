@@ -13,12 +13,17 @@ const plyPrefix = (node: Tree.Node): string =>
 
 const escapeComment = (text: string): string => text.replace(/\\/g, '\\\\').replace(/}/g, '\\}');
 
-const renderComments = (comments: Tree.Comment[] | undefined): string =>
-  (comments || [])
-    .map(comment => comment.text.trim())
-    .filter(Boolean)
-    .map(text => `{${escapeComment(text)}}`)
-    .join(' ');
+const renderComments = (comments: Tree.Comment[] | undefined): string => {
+  if (!comments || comments.length === 0) return '';
+  const parts: string[] = [];
+  for (let i = 0; i < comments.length; i++) {
+    const text = comments[i].text?.trim();
+    if (text) {
+      parts.push(`{${escapeComment(text)}}`);
+    }
+  }
+  return parts.join(' ');
+};
 
 const appendPart = (text: string, part: string): string => {
   if (!part) return text;
@@ -54,6 +59,18 @@ function renderNodesTxt(node: Tree.Node, forcePly: boolean): string {
 }
 
 function renderPgnTags(game: Game): string {
+  const map = new Map<string, string>();
+
+  // Add all tags from game.tags first
+  if (game.tags) {
+    for (const key in game.tags) {
+      if (Object.prototype.hasOwnProperty.call(game.tags, key)) {
+        const val = game.tags[key];
+        if (val !== undefined) map.set(key, String(val));
+      }
+    }
+  }
+
   const standardTags: Array<[string, string | undefined]> = [
     ['Event', game.event],
     ['Site', game.site],
@@ -68,49 +85,28 @@ function renderPgnTags(game: Game): string {
     ['Termination', game.termination],
   ];
 
-  const allTags: Array<[string, string]> = [];
-
-  // Add all tags from game.tags first
-  for (const key in game.tags) {
-    if (Object.prototype.hasOwnProperty.call(game.tags, key)) {
-      allTags.push([key, game.tags[key]]);
-    }
-  }
-
   // Override with standard tags if they exist
-  for (const [key, value] of standardTags) {
+  for (let i = 0; i < standardTags.length; i++) {
+    const [key, value] = standardTags[i];
     if (value !== undefined) {
-      const existingIndex = allTags.findIndex(tag => tag[0] === key);
-      if (existingIndex !== -1) {
-        allTags[existingIndex] = [key, value];
-      } else {
-        allTags.push([key, value]);
-      }
+      map.set(key, value);
     }
   }
 
-  if (game.variant.key !== 'standard') {
-    const existingIndex = allTags.findIndex(tag => tag[0] === 'Variant');
-    if (existingIndex !== -1) {
-      allTags[existingIndex] = ['Variant', game.variant.name];
-    } else {
-      allTags.push(['Variant', game.variant.name]);
-    }
+  if (game.variant && game.variant.key !== 'standard') {
+    map.set('Variant', game.variant.name);
   }
   if (game.fen && game.fen !== INITIAL_FEN) {
-    const existingIndex = allTags.findIndex(tag => tag[0] === 'FEN');
-    if (existingIndex !== -1) {
-      allTags[existingIndex] = ['FEN', game.fen];
-    } else {
-      allTags.push(['FEN', game.fen]);
-    }
+    map.set('FEN', game.fen);
   }
 
-  let txt = '';
-  for (const [key, value] of allTags) {
-    txt += `[${key} "${value}"]\n`;
+  if (map.size === 0) return '';
+
+  const lines: string[] = [];
+  for (const [key, value] of map) {
+    lines.push(`[${key} "${value}"]\n`);
   }
-  return txt ? txt + '\n' : '';
+  return lines.join('') + '\n';
 }
 
 export function renderFullTxt(ctrl: AnalyseCtrl): string {
@@ -120,18 +116,20 @@ export function renderFullTxt(ctrl: AnalyseCtrl): string {
 }
 
 export function renderVariationPgn(game: Game, nodeList: Tree.Node[]): string {
-  const filteredNodeList = nodeList.filter(node => node.san);
+  const filteredNodeList: Tree.Node[] = [];
+  for (let i = 0; i < nodeList.length; i++) {
+    if (nodeList[i].san) filteredNodeList.push(nodeList[i]);
+  }
   if (filteredNodeList.length === 0) return '';
 
-  let variationPgn = '';
-
+  const parts: string[] = [];
   const first = filteredNodeList[0];
-  variationPgn += `${renderMoveTxt(first, true)} `;
+  parts.push(`${renderMoveTxt(first, true)}`);
 
   for (let i = 1; i < filteredNodeList.length; i++) {
     const node = filteredNodeList[i];
-    variationPgn += `${renderMoveTxt(node, node.ply % 2 === 1)} `;
+    parts.push(`${renderMoveTxt(node, node.ply % 2 === 1)}`);
   }
 
-  return renderPgnTags(game) + variationPgn;
+  return renderPgnTags(game) + parts.join(' ') + ' ';
 }

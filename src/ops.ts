@@ -7,16 +7,19 @@ export function findInMainline(
   fromNode: Tree.Node,
   predicate: (node: Tree.Node) => boolean,
 ): Tree.Node | undefined {
-  const findFrom = (node: Tree.Node): Tree.Node | undefined =>
-    predicate(node) ? node : withMainlineChild(node, findFrom);
-  return findFrom(fromNode);
+  let curr: Tree.Node | undefined = fromNode;
+  while (curr) {
+    if (predicate(curr)) return curr;
+    curr = curr.children[0];
+  }
+  return undefined;
 }
 
 // returns a list of nodes collected from the original one
 export function collect(from: Tree.Node, pickChild: (node: Tree.Node) => Tree.Node | undefined): Tree.Node[] {
   const nodes = [from];
-  let n = from,
-    c;
+  let n = from;
+  let c: Tree.Node | undefined;
   while ((c = pickChild(n))) {
     nodes.push(c);
     n = c;
@@ -24,40 +27,65 @@ export function collect(from: Tree.Node, pickChild: (node: Tree.Node) => Tree.No
   return nodes;
 }
 
-export const childById = (node: Tree.Node, id: string): Tree.Node | undefined =>
-  node.children.find(child => child.id === id);
+export function childById(node: Tree.Node, id: string): Tree.Node | undefined {
+  const children = node.children;
+  const len = children.length;
+  for (let i = 0; i < len; i++) {
+    if (children[i].id === id) return children[i];
+  }
+  return undefined;
+}
 
 export const last = (nodeList: Tree.Node[]): Tree.Node | undefined => nodeList[nodeList.length - 1];
 
-export const nodeAtPly = (nodeList: Tree.Node[], ply: number): Tree.Node | undefined =>
-  nodeList.find(node => node.ply === ply);
+export function nodeAtPly(nodeList: Tree.Node[], ply: number): Tree.Node | undefined {
+  const len = nodeList.length;
+  for (let i = 0; i < len; i++) {
+    if (nodeList[i].ply === ply) return nodeList[i];
+  }
+  return undefined;
+}
 
 export function takePathWhile(nodeList: Tree.Node[], predicate: (node: Tree.Node) => boolean): Tree.Path {
-  let path = '';
-  for (const n of nodeList) {
-    if (predicate(n)) path += n.id;
+  const parts: string[] = [];
+  const len = nodeList.length;
+  for (let i = 0; i < len; i++) {
+    const n = nodeList[i];
+    if (predicate(n)) parts.push(n.id);
     else break;
   }
-  return path;
+  return parts.join('');
 }
 
 export function removeChild(parent: Tree.Node, id: string): void {
-  parent.children = parent.children.filter(n => n.id !== id);
+  const children = parent.children;
+  const len = children.length;
+  for (let i = 0; i < len; i++) {
+    if (children[i].id === id) {
+      children.splice(i, 1);
+      return;
+    }
+  }
 }
 
-export function countChildrenAndComments(node: Tree.Node): {
+export function countChildrenAndComments(root: Tree.Node): {
   nodes: number;
   comments: number;
 } {
   const count = {
-    nodes: 1,
-    comments: (node.comments || []).length,
+    nodes: 0,
+    comments: 0,
   };
-  node.children.forEach(function (child) {
-    const c = countChildrenAndComments(child);
-    count.nodes += c.nodes;
-    count.comments += c.comments;
-  });
+  function walk(node: Tree.Node) {
+    count.nodes++;
+    if (node.comments) count.comments += node.comments.length;
+    const children = node.children;
+    const len = children.length;
+    for (let i = 0; i < len; i++) {
+      walk(children[i]);
+    }
+  }
+  walk(root);
   return count;
 }
 
@@ -65,43 +93,63 @@ export function countChildrenAndComments(node: Tree.Node): {
 export function merge(n1: Tree.Node, n2: Tree.Node): void {
   if (n2.eval) n1.eval = n2.eval;
   if (n2.glyphs) n1.glyphs = n2.glyphs;
-  n2.comments &&
-    n2.comments.forEach(function (c) {
-      if (!n1.comments) n1.comments = [c];
-      else if (
-        !n1.comments.some(function (d) {
-          return d.text === c.text;
-        })
-      )
-        n1.comments.push(c);
-    });
-  n2.startingComments &&
-    n2.startingComments.forEach(function (c) {
-      if (!n1.startingComments) n1.startingComments = [c];
-      else if (
-        !n1.startingComments.some(function (d) {
-          return d.text === c.text;
-        })
-      )
-        n1.startingComments.push(c);
-    });
-  n2.children.forEach(function (c) {
+  if (n2.comments) {
+    if (!n1.comments) {
+      n1.comments = n2.comments.slice();
+    } else {
+      for (let i = 0; i < n2.comments.length; i++) {
+        const c = n2.comments[i];
+        let found = false;
+        for (let j = 0; j < n1.comments.length; j++) {
+          if (n1.comments[j].text === c.text) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) n1.comments.push(c);
+      }
+    }
+  }
+  if (n2.startingComments) {
+    if (!n1.startingComments) {
+      n1.startingComments = n2.startingComments.slice();
+    } else {
+      for (let i = 0; i < n2.startingComments.length; i++) {
+        const c = n2.startingComments[i];
+        let found = false;
+        for (let j = 0; j < n1.startingComments.length; j++) {
+          if (n1.startingComments[j].text === c.text) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) n1.startingComments.push(c);
+      }
+    }
+  }
+  const n2Children = n2.children;
+  const n2Len = n2Children.length;
+  for (let i = 0; i < n2Len; i++) {
+    const c = n2Children[i];
     const existing = childById(n1, c.id);
     if (existing) merge(existing, c);
     else n1.children.push(c);
-  });
+  }
 }
 
 export const hasBranching = (node: Tree.Node, maxDepth: number): boolean =>
-  maxDepth <= 0 || !!node.children[1] || (node.children[0] && hasBranching(node.children[0], maxDepth - 1));
+  maxDepth <= 0 || !!node.children[1] || (node.children[0] ? hasBranching(node.children[0], maxDepth - 1) : false);
 
 export const mainlineNodeList = (from: Tree.Node): Tree.Node[] => collect(from, node => node.children[0]);
 
 export function updateAll(root: Tree.Node, f: (node: Tree.Node) => void): void {
-  // applies f recursively to all nodes
   function update(node: Tree.Node) {
     f(node);
-    node.children.forEach(update);
+    const children = node.children;
+    const len = children.length;
+    for (let i = 0; i < len; i++) {
+      update(children[i]);
+    }
   }
   update(root);
 }
