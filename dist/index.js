@@ -32,13 +32,21 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pgnExport = exports.pgnImport = exports.buildTree = void 0;
+exports.pgnExport = exports.pgnImport = exports.ops = exports.path = exports.tree = exports.build = exports.buildTree = void 0;
 var tree_1 = require("./tree");
 Object.defineProperty(exports, "buildTree", { enumerable: true, get: function () { return tree_1.build; } });
+Object.defineProperty(exports, "build", { enumerable: true, get: function () { return tree_1.build; } });
+exports.tree = __importStar(require("./tree"));
+exports.path = __importStar(require("./path"));
+exports.ops = __importStar(require("./ops"));
 var pgnImport_1 = require("./pgnImport");
 Object.defineProperty(exports, "pgnImport", { enumerable: true, get: function () { return __importDefault(pgnImport_1).default; } });
 exports.pgnExport = __importStar(require("./pgnExport"));
+__exportStar(require("./types"), exports);
