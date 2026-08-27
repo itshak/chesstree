@@ -9,6 +9,6 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in `pgn-chess-tree`, please report it by opening a private security advisory on GitHub or by contacting the maintainers directly through GitHub Issues.
+If you discover a security vulnerability in `chesstree`, please report it by opening a private security advisory on GitHub or by contacting the maintainers directly through GitHub Issues.
 
 We will review and respond to reports promptly.

@@ -40,8 +40,8 @@ Rebrand the library from `pgn-chess-tree` to `chesstree`, switch license from AG
 #### [MODIFY] [SECURITY.md](file:///Users/ais/Projects/pgn-chess-tree/SECURITY.md)
 - Replace package name references with `chesstree`
 
-#### [NEW] [assets/logo.jpg](file:///Users/ais/Projects/pgn-chess-tree/assets/logo.jpg)
-- Copy the generated chesstree logo into the repo for README embedding
+#### [NEW] [assets/svg/logo.svg](file:///Users/ais/Projects/pgn-chess-tree/assets/svg/logo.svg)
+- Clean vector SVG logo (13 KB) with dark green (`#0F5724`) chess tree
 
 ---
 
@@ -65,7 +65,7 @@ Rebrand the library from `pgn-chess-tree` to `chesstree`, switch license from AG
 
 Complete rewrite with the following structure:
 
-1. **Logo + Name** — Embed the chesstree logo centered at top
+1. **Logo + Name** — Embed the chesstree SVG logo (`assets/svg/logo.svg`) centered at top
 2. **Badges** — npm version (pointing to `chesstree`), license (GPL-3.0), TypeScript, tests passing
 3. **One-line hero hook**:
    > *"The Lichess analysis tree — extracted, optimized, and packaged as a standalone npm library with full PGN import/export."*
@@ -145,6 +145,6 @@ npm test
 - Verify `docs/strategy.md` is gitignored
 - Verify LICENSE file contains GPL-3.0 text (not AGPL)
 - Verify CONTRIBUTING.md, SECURITY.md, ARCHITECTURE.md all reference `chesstree` and GPL-3.0
-- Verify logo file exists at `assets/logo.jpg`
+- Verify logo file exists at `assets/svg/logo.svg` with green fill (`#0F5724`)
 - Verify CHANGELOG.md is present and accurate
 - Do a dry-run `npm pack` and inspect the tarball contents

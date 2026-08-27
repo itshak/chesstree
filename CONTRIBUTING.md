@@ -1,6 +1,6 @@
-# Contributing to `pgn-chess-tree`
+# Contributing to `chesstree`
 
-Thank you for your interest in improving `pgn-chess-tree`! We welcome bug fixes, performance enhancements, and new features that keep the library fast, accessible, and robust.
+Thank you for your interest in improving `chesstree`! We welcome bug fixes, performance enhancements, and new features that keep the library fast, accessible, and robust.
 
 ---
 
@@ -13,8 +13,8 @@ Thank you for your interest in improving `pgn-chess-tree`! We welcome bug fixes,
 ### 2. Setup
 ```bash
 # Clone the repository
-git clone https://github.com/itshak/pgn-chess-tree.git
-cd pgn-chess-tree
+git clone https://github.com/itshak/chesstree.git
+cd chesstree
 
 # Install dependencies
 npm install
@@ -53,4 +53,4 @@ npm run build
    - Every bug fix or new feature must be accompanied by new or updated unit tests in `tests/`.
 
 4. **Licensing:**
-   - All contributions are licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**.
+   - All contributions are licensed under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**.

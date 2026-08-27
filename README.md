@@ -1,13 +1,50 @@
-# pgn-chess-tree
+<p align="center">
+  <img src="assets/svg/logo.svg" alt="chesstree logo" width="200" />
+</p>
 
-[![npm version](https://img.shields.io/npm/v/pgn-chess-tree.svg)](https://www.npmjs.com/package/pgn-chess-tree)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
+<h1 align="center">chesstree</h1>
 
-`pgn-chess-tree` is a high-performance JavaScript and TypeScript library for parsing, manipulating, and serializing PGN (Portable Game Notation) chess games and complex variation trees.
+<p align="center">
+  <em>The Lichess analysis tree — extracted, optimized, and packaged as a standalone npm library with full PGN import/export.</em>
+</p>
 
-Originally adapted from the battle-tested analysis tree logic of [Lichess.org](https://lichess.org) and powered by [`chessops`](https://github.com/niklasf/chessops), this standalone library is fine-tuned for desktop workstations (such as [BlindBase](https://github.com/itshak/blindbase)), web apps, and chess study tools requiring sub-millisecond keyboard navigation, deep variation editing, and zero garbage-collector stutter.
+<p align="center">
+  <a href="https://www.npmjs.com/package/chesstree"><img src="https://img.shields.io/npm/v/chesstree.svg" alt="npm version" /></a>
+  <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Strict-blue.svg" alt="TypeScript" /></a>
+  <a href="https://github.com/itshak/chesstree/actions"><img src="https://img.shields.io/badge/tests-passing-brightgreen.svg" alt="Tests" /></a>
+</p>
+
+---
+
+## Why chesstree?
+
+**Built from the actual Lichess source code** — `chesstree` is extracted from [`ui/lib/src/tree/`](https://github.com/lichess-org/lila/tree/master/ui/lib/src/tree) in the Lichess monorepo. The same tree data structure powering millions of games on the world's largest open-source chess platform, now available as a single `npm install`.
+
+- 🏗️ **Lichess DNA** — Same `TreeWrapper` API, same node ID encoding (`scalachessCharPair`), same battle-tested architecture
+- 🚀 **Extended beyond Lichess** — Full PGN import/export pipeline, 64-entry MRU path cache, zero-allocation `charCodeAt` traversal — performance improvements you won't find in Lichess itself
+- 📦 **One dependency** — Only `chessops` (by the same Lichess author). No framework lock-in, works everywhere
+
+---
+
+## How chesstree compares
+
+| Feature | chesstree | chess.js | chessops | @jackstenglein/chess | cm-chess |
+|---|---|---|---|---|---|
+| Parse PGN with variations | ✅ | ❌ | ✅ | ✅ | ✅ |
+| Variation tree data structure | ✅ | ❌ | ✅ | ✅ | ✅ |
+| **Add moves to tree** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **Delete subtrees** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Promote variation to mainline** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Merge trees** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Lossless PGN roundtrip export** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| Zero-allocation path traversal | ✅ | ❌ | ❌ | ❌ | ❌ |
+| MRU path cache | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Null move support (Z0, --) | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Comments & NAGs | ✅ | ❌ | ✅ | ✅ | ✅ |
+| Board shapes (arrows/highlights) | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Chess960 / variants | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Strict TypeScript | ✅ | ✅ | ✅ | ✅ | ❌ |
 
 ---
 
@@ -15,7 +52,7 @@ Originally adapted from the battle-tested analysis tree logic of [Lichess.org](h
 
 - 🌳 **Complete Variation Tree Support:** Parse and manipulate unlimited levels of nested variations (RAVs), move comments, starting comments, NAG glyphs (`!`, `?`, `!?`), clock annotations (`[%clk ...]`), and board drawings (`[%cal ...]`, `[%csl ...]`).
 - ⚡ **Zero-Allocation Path Algebra:** Iterative move lookups and path calculations eliminate substring memory allocations and recursive call frames in hot render loops.
-- 🚀 **64-Entry MRU Path Cache:** Active move paths return in $O(1)$ directly from memory, keeping 120fps UI navigation silky smooth.
+- 🚀 **64-Entry MRU Path Cache:** Active move paths return in O(1) directly from memory, keeping 120fps UI navigation silky smooth.
 - 🔁 **Lossless Roundtrip Export:** Serialize modified variation trees back to standard PGN with proper indentation, comment escaping, and tag preservation.
 - 🛡️ **Type-Safe:** 100% strict TypeScript definitions with full autocomplete and type inference.
 - 🌐 **Framework Agnostic:** Works seamlessly in Node.js, React, Vue, Svelte, Electron, Tauri, or vanilla browser JavaScript.
@@ -25,15 +62,15 @@ Originally adapted from the battle-tested analysis tree logic of [Lichess.org](h
 ## Installation
 
 ```bash
-npm install pgn-chess-tree
+npm install chesstree
 ```
 
 Or with yarn / pnpm:
 
 ```bash
-yarn add pgn-chess-tree
+yarn add chesstree
 # or
-pnpm add pgn-chess-tree
+pnpm add chesstree
 ```
 
 ---
@@ -43,7 +80,7 @@ pnpm add pgn-chess-tree
 ### 1. Parse a PGN Game
 
 ```typescript
-import { pgnImport, buildTree, pgnExport } from 'pgn-chess-tree';
+import { pgnImport, buildTree, pgnExport } from 'chesstree';
 
 const pgn = `[Event "World Championship"]
 [Site "Reykjavik ISL"]
@@ -128,7 +165,7 @@ Creates an optimized navigation wrapper over the tree with the following methods
 
 | Method | Return Type | Description |
 |---|---|---|
-| `nodeAtPath(path: string)` | `Tree.Node \| undefined` | Cached, $O(1)$ / $O(N)$ node lookup. |
+| `nodeAtPath(path: string)` | `Tree.Node \| undefined` | Cached, O(1) / O(N) node lookup. |
 | `getNodeList(path: string)` | `Tree.Node[]` | Ordered array of nodes from root to target path. |
 | `longestValidPath(path: string)` | `string` | Returns the longest prefix of `path` that exists in the tree. |
 | `pathIsMainline(path: string)` | `boolean` | Returns `true` if the path lies on the primary mainline. |
@@ -154,11 +191,11 @@ For deep-dive details on the underlying data structures, zero-allocation algorit
 
 We welcome community contributions, bug reports, and optimizations!
 
-1. Fork the repository on GitHub: [`https://github.com/itshak/pgn-chess-tree`](https://github.com/itshak/pgn-chess-tree)
+1. Fork the repository on GitHub: [`https://github.com/itshak/chesstree`](https://github.com/itshak/chesstree)
 2. Clone your fork and install dependencies:
    ```bash
-   git clone https://github.com/your-username/pgn-chess-tree.git
-   cd pgn-chess-tree
+   git clone https://github.com/your-username/chesstree.git
+   cd chesstree
    npm install
    ```
 3. Run the test suite:
@@ -173,5 +210,5 @@ Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for full development guidelines.
 
 ## License & Attribution
 
-- **License:** GNU Affero General Public License v3.0 or later ([AGPL-3.0-or-later](LICENSE)).
+- **License:** GNU General Public License v3.0 or later ([GPL-3.0-or-later](LICENSE)).
 - **Attribution:** Adapted from [Lichess.org](https://lichess.org) (GPL-3.0) and uses [`chessops`](https://github.com/niklasf/chessops) by Niklas Fiekas (GPL-3.0).

@@ -1,9 +1,9 @@
 {
-  "name": "pgn-chess-tree",
-  "version": "1.3.0",
-  "description": "A high-performance standalone library for parsing, manipulating, and serializing PGN chess variation trees.",
-  "license": "AGPL-3.0-or-later",
-  "author": "BlindBase Team",
+  "name": "chesstree",
+  "version": "2.0.0",
+  "description": "The Lichess analysis tree — extracted, optimized, and packaged as a standalone npm library with full PGN import/export.",
+  "license": "GPL-3.0-or-later",
+  "author": "chesstree contributors",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/itshak/pgn-chess-tree.git"
+    "url": "git+https://github.com/itshak/chesstree.git"
   },
   "bugs": {
-    "url": "https://github.com/itshak/pgn-chess-tree/issues"
+    "url": "https://github.com/itshak/chesstree/issues"
   },
-  "homepage": "https://github.com/itshak/pgn-chess-tree#readme",
+  "homepage": "https://github.com/itshak/chesstree#readme",
   "keywords": [
     "chess",
     "pgn",
@@ -35,7 +35,14 @@
     "lichess",
     "chessops",
     "chessground",
-    "blindbase"
+    "analysis",
+    "annotation",
+    "rav",
+    "subvariation",
+    "study",
+    "game-tree",
+    "move-tree",
+    "opening-explorer"
   ],
   "dependencies": {
     "chessops": "^0.14.2"

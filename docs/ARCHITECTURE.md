@@ -1,14 +1,14 @@
-# `pgn-chess-tree` Architecture & Technical Reference
+# `chesstree` Architecture & Technical Reference
 
-> **License:** GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)  
+> **License:** GNU General Public License v3.0 or later (GPL-3.0-or-later)  
 > **Underlying Chess Engine:** `chessops` (GPL-3.0)  
-> **Primary Use Case:** High-performance in-memory chess game and variation tree parser, manipulator, and serializer for desktop and web workstations (such as BlindBase).
+> **Primary Use Case:** High-performance in-memory chess game and variation tree parser, manipulator, and serializer for desktop and web workstations.
 
 ---
 
 ## 1. Overview & Data Model
 
-`pgn-chess-tree` manages interactive chess trees with multi-level recursive annotation variations (RAVs), comments, NAGs, clock annotations (`[%clk ...]`), board shapes/arrows (`[%cal ...]`, `[%csl ...]`), and eval tags.
+`chesstree` manages interactive chess trees with multi-level recursive annotation variations (RAVs), comments, NAGs, clock annotations (`[%clk ...]`), board shapes/arrows (`[%cal ...]`, `[%csl ...]`), and eval tags.
 
 ```
                            Root Node (Initial FEN)
@@ -58,7 +58,7 @@ export namespace Tree {
 
 ## 2. Path Representation & Indexing
 
-Paths in `pgn-chess-tree` represent navigation routes through the tree from root to any node:
+Paths in `chesstree` represent navigation routes through the tree from root to any node:
 - The root path is the empty string `''`.
 - Each move step adds a 2-character ID (derived from `scalachessCharPair` via `chessops`).
 - Example path: `"a8b7d5"` represents:
@@ -70,7 +70,7 @@ Paths in `pgn-chess-tree` represent navigation routes through the tree from root
 
 ## 3. High-Performance Optimizations
 
-`pgn-chess-tree` has been tuned for zero garbage collection pause, sub-millisecond keyboard navigation, and fast large PGN parsing:
+`chesstree` has been tuned for zero garbage collection pause, sub-millisecond keyboard navigation, and fast large PGN parsing:
 
 ### A. Zero-Allocation Iterative Path Lookups
 - **Legacy:** Recursive slicing (`path.slice(0, 2)` + `path.slice(2)`) allocated dozens of temporary string objects per move lookup.
@@ -100,7 +100,7 @@ Paths in `pgn-chess-tree` represent navigation routes through the tree from root
 ### `pgnImport(pgn: string): AnalyseData`
 Parses a PGN string into structured game headers and a root `Tree.Node`.
 ```typescript
-import { pgnImport, tree } from 'pgn-chess-tree';
+import { pgnImport, tree } from 'chesstree';
 
 const data = pgnImport(pgnString);
 const gameTree = tree.build(data.treeParts[0]);
