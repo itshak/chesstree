@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/chesstree"><img src="https://img.shields.io/npm/v/chesstree.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@itshak/chesstree"><img src="https://img.shields.io/npm/v/@itshak/chesstree.svg" alt="npm version" /></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-Strict-blue.svg" alt="TypeScript" /></a>
   <a href="https://github.com/itshak/chesstree/actions"><img src="https://img.shields.io/badge/tests-passing-brightgreen.svg" alt="Tests" /></a>
@@ -62,15 +62,15 @@
 ## Installation
 
 ```bash
-npm install chesstree
+npm install @itshak/chesstree
 ```
 
 Or with yarn / pnpm:
 
 ```bash
-yarn add chesstree
+yarn add @itshak/chesstree
 # or
-pnpm add chesstree
+pnpm add @itshak/chesstree
 ```
 
 ---
@@ -80,7 +80,7 @@ pnpm add chesstree
 ### 1. Parse a PGN Game
 
 ```typescript
-import { pgnImport, buildTree, pgnExport } from 'chesstree';
+import { pgnImport, buildTree, pgnExport } from '@itshak/chesstree';
 
 const pgn = `[Event "World Championship"]
 [Site "Reykjavik ISL"]
