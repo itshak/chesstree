@@ -29,22 +29,21 @@
 
 ## How chesstree compares
 
-| Feature | chesstree | chess.js | chessops | @jackstenglein/chess | cm-chess |
+| Feature | `@itshak/chesstree` | `@mliebelt/pgn-parser` | `chessops` | `@jackstenglein/chess` | `cm-chess` |
 |---|---|---|---|---|---|
-| Parse PGN with variations | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Variation tree data structure | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **Add moves to tree** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
-| **Delete subtrees** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Parse nested variations (RAVs)** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Pre-computed FEN on every node** | ✅ | ❌ *(syntax only)* | ✅ | ✅ | ✅ |
+| **Interactive Navigation (`nodeAtPath`)** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **Add moves to tree & branches** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **Delete subtrees & variations** | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **Promote variation to mainline** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Merge trees** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Lossless PGN roundtrip export** | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
-| Zero-allocation path traversal | ✅ | ❌ | ❌ | ❌ | ❌ |
-| MRU path cache | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Null move support (Z0, --) | ✅ | ❌ | ❌ | ✅ | ❌ |
-| Comments & NAGs | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Board shapes (arrows/highlights) | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Chess960 / variants | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Strict TypeScript | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Merge variation trees** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Lossless PGN roundtrip export** | ✅ | ⚠️ *(separate writer)* | ❌ | ⚠️ | ⚠️ |
+| **Zero-allocation path traversal** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **O(1) MRU path cache (120fps UI)** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Board shapes & arrows (`[%cal]`, `[%csl]`)** | ✅ | ⚠️ | ✅ | ❌ | ❌ |
+| **Clock annotations (`[%clk]`) & NAGs** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Strict TypeScript** | ✅ | ⚠️ | ✅ | ✅ | ❌ |
 
 ---
 
