@@ -3,5 +3,6 @@ node_modules/
 *.log
 dist/
 docs/strategy.md
+docs/implementation_plan.md
 .DS_Store
-node_modules/
+**/.DS_Store
